@@ -7,7 +7,6 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.state.GameState;
-import org.newdawn.slick.gui.MouseOverArea;
 
 public class MainMenu extends BasicGameState {
     // ID we return to class 'Application'
