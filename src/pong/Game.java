@@ -11,6 +11,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
+import java.util.Random;
 
 public class Game extends BasicGameState{
     // ID we return to class 'Application'
@@ -23,8 +24,10 @@ public class Game extends BasicGameState{
         public boolean start = false;
         public boolean left;
         public boolean up;
+        public double ballSpeed;
         public double xSpeed;
         public double ySpeed;
+        public double startSpeed;
         public double paddleSpeed;
         public int maxHeight;
         public int minHeight;
@@ -32,6 +35,8 @@ public class Game extends BasicGameState{
         public int maxWidth;
         public int ballPos, p1Pos, p2Pos;
         public double theta;
+        public int score1;
+        public int score2;
         
 	// init-method for initializing all resources
 	@Override
@@ -43,7 +48,13 @@ public class Game extends BasicGameState{
             maxHeight = 0;
             minWidth = 0;
             maxWidth = 640;
-            xSpeed = 3;
+            
+            Random rand = new Random();//do seed
+            startSpeed = 5;
+            ballSpeed = startSpeed;
+            theta = rand.nextDouble()*180 - 89;
+            ySpeed = ballSpeed * Math.sin(theta);
+            xSpeed = ballSpeed * Math.cos(theta);
             paddleSpeed = 15;
 
             ball = new Ball();
@@ -66,6 +77,9 @@ public class Game extends BasicGameState{
             ballPos = ball.y + (ball.h / 2);
             p1Pos = p1.y + (p1.h / 2);
             p2Pos = p2.y + (p2.h / 2);
+            
+            score1 = 0;
+            score2 = 0;
 	}
 
 	// render-method for all the things happening on-screen
@@ -79,6 +93,8 @@ public class Game extends BasicGameState{
             g.drawImage(p1.i, p1.x, p1.y);
             g.fillRoundRect(p2.x, p2.y, p2.w, p2.h, 10);
             g.drawImage(p2.i, p2.x, p2.y);
+            g.drawString(Integer.toString(score1), 200, 50);
+            g.drawString(Integer.toString(score2), 450, 50);
 	}
 
 	// update-method with all the magic happening in it
@@ -87,7 +103,7 @@ public class Game extends BasicGameState{
             ballPos = ball.y + (ball.h / 2);
             p1Pos = p1.y + (p1.h / 2);
             p2Pos = p2.y + (p2.h / 2);
-            
+            Random rand = new Random();
             input = gc.getInput();         
             
             if(start){//game start
@@ -97,19 +113,23 @@ public class Game extends BasicGameState{
                     //left paddle collision
                     if(ball.x <= (p1.x + p1.w) && ball.y <= (p1.y + p1.h) && (ball.y + ball.h) >= (p1.y)){
                         left = false;
-                        if(xSpeed < 20){
-                            xSpeed += 1;
+                        if(ballSpeed < 20){
+                            ballSpeed++;
                         }
                         theta =  atan((ballPos - p1Pos)/((p1.w/2) + (ball.w/2)));
-                        ySpeed = tan(theta) * xSpeed;
+                        ySpeed = ballSpeed * Math.sin(theta);
+                        xSpeed = ballSpeed * Math.cos(theta);
                       }
                     //left wall collision
                     if(ball.x <= minWidth){
                         start = false;
                         ball.x = 320 - ball.w;
                         ball.y = 240 - ball.h;
-                        xSpeed = 3;
-                        ySpeed = 0;
+                        ballSpeed = startSpeed;
+                        ySpeed = ballSpeed * Math.sin(theta);
+                        xSpeed = ballSpeed * Math.cos(theta);
+                        score2++;
+                        theta = rand.nextDouble()*180 - 89;
                     }
                 }//ball going right
                 else{
@@ -118,19 +138,23 @@ public class Game extends BasicGameState{
                     //right paddle collision
                     if(ball.x + ball.w >= (p2.x) && ball.y <= (p2.y + p2.h) && (ball.y + ball.h) >= (p2.y)){
                         left = true;
-                        if(xSpeed < 20){
-                            xSpeed += 1;
+                        if(ballSpeed < 20){
+                            ballSpeed++;
                         }
                         theta =  atan((ballPos - p2Pos)/((p2.w/2) + (ball.w/2)));
-                        ySpeed = tan(theta) * xSpeed;
+                        ySpeed = ballSpeed * Math.sin(theta);
+                        xSpeed = ballSpeed * Math.cos(theta);
                     }
                     //right wall collision 
                     if(ball.x + ball.w >= maxWidth){
                         start = false;
                         ball.x = 320 - ball.w;
                         ball.y = 240 - ball.h;
-                        xSpeed = 3;
-                        ySpeed = 0;
+                        ballSpeed = startSpeed;
+                        ySpeed = ballSpeed * Math.sin(theta);
+                        xSpeed = ballSpeed * Math.cos(theta);
+                        score1++;
+                        theta = rand.nextDouble()*180 - 89;
                     }
                 }
                 //top wall collision
@@ -191,7 +215,8 @@ public class Game extends BasicGameState{
                 p1.y = (minHeight /2) - (p1.h / 2);
                 p2.x = maxWidth - p2.w;
                 p2.y = (minHeight / 2) - (p2.h / 2); 
-                GameState target = game.getState(MainMenu.ID);
+                score1 = 0;
+                score2 = 0;
                 game.enterState(MainMenu.ID);
             }
         }

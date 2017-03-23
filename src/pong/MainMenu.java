@@ -48,14 +48,12 @@ public class MainMenu extends BasicGameState {
         
         public void keyReleased(int key, char c){
             if(key == Input.KEY_2){
-                GameState target = game.getState(Game.ID);
                 game.enterState(Game.ID);
             }
         }
         
         public void mouseReleased(int button, int x, int y){
             if(x > start.x && x < start.x + start.w && y > start.y && y < start.y + start.h){
-                GameState target = game.getState(Game.ID);
                 game.enterState(Game.ID);
             }
         }
