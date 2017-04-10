@@ -9,7 +9,8 @@ public class Pong extends StateBasedGame {
 
     // Game state identifiers
     public static final int MAINMENU     = 0;
-    public static final int GAME         = 1;
+    public static final int GAME         = 1; //player vs player
+    public static final int GAME2         = 2; //plaver vs AI
 
     // Application Properties
     public static final int WIDTH   = 640;
@@ -27,6 +28,7 @@ public class Pong extends StateBasedGame {
         // The first state added will be the one that is loaded first, when the application is launched       
         this.addState(new MainMenu());
         this.addState(new Game());
+        this.addState(new Game2());
     }
 
     // Main Method
@@ -35,7 +37,7 @@ public class Pong extends StateBasedGame {
             AppGameContainer app = new AppGameContainer(new Pong("My Game v" + VERSION));
             app.setDisplayMode(WIDTH, HEIGHT, false);
             app.setTargetFrameRate(FPS);
-            app.setShowFPS(true);
+            app.setShowFPS(false);
             app.start();
             
         } 

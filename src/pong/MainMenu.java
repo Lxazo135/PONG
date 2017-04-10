@@ -50,6 +50,9 @@ public class MainMenu extends BasicGameState {
             if(key == Input.KEY_2){
                 game.enterState(Game.ID);
             }
+            if(key == Input.KEY_3){
+                game.enterState(Game2.ID);
+            }
         }
         
         public void mouseReleased(int button, int x, int y){
