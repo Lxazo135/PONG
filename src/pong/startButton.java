@@ -16,9 +16,11 @@ import org.newdawn.slick.SlickException;
 public class startButton {
     public Image i;
     public int x,y;
-    public int w = 300;
-    public int h = 150;
-    public startButton() throws SlickException{
-        i = new Image("startButton.png");
+    public int w;
+    public int h;
+    public startButton(Image j, int width, int height) throws SlickException{
+        i = j;
+        w = width;
+        h = height; 
     }
 }

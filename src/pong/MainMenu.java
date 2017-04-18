@@ -13,16 +13,26 @@ public class MainMenu extends BasicGameState {
 	public static final int ID = 0;
         private StateBasedGame game;
         public static Image background;
+        public Image buttonPVP;
+        public Image buttonPVAI;
         public startButton start;
+        public startButton start2;
         public Input input;
 	// init-method for initializing all resources
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
             this.game = sbg;
             background = new Image("bg2.png");
-            start = new startButton();
-            start.x = 320 - (start.w/2);
+            
+            buttonPVP = new Image("pvp.jpg");
+            start = new startButton(buttonPVP, 300, 150);
+            start.x = 160 - (start.w/2);
             start.y = 240 - (start.h/2);
+            
+            buttonPVAI = new Image("pvai.png");
+            start2 = new startButton(buttonPVAI, 300, 150);
+            start2.x = 480 - (start2.w/2);
+            start2.y = 240 - (start.h/2);
 	}
 
 	// render-method for all the things happening on-screen
@@ -31,6 +41,8 @@ public class MainMenu extends BasicGameState {
             g.drawImage(background, 0, 0);
             g.fillRoundRect(start.x, start.y, start.w, start.h, 10);
             g.drawImage(start.i, start.x, start.y);
+            g.fillRoundRect(start2.x, start2.y, start2.w, start2.h, 10);
+            g.drawImage(start2.i, start2.x, start2.y);
             g.drawString("MAIN MENU", 300, 10);
 	}
 
@@ -58,6 +70,10 @@ public class MainMenu extends BasicGameState {
         public void mouseReleased(int button, int x, int y){
             if(x > start.x && x < start.x + start.w && y > start.y && y < start.y + start.h){
                 game.enterState(Game.ID);
+            }
+            
+            if(x > start2.x && x < start2.x + start2.w && y > start2.y && y < start2.y + start2.h){
+                game.enterState(Game2.ID);
             }
         }
 }

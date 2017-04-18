@@ -11,6 +11,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.Sound;
 import java.util.Random;
 
 public class Game extends BasicGameState{
@@ -33,35 +34,45 @@ public class Game extends BasicGameState{
         public int minHeight;
         public int minWidth;
         public int maxWidth;
-        public int ballPos, p1Pos, p2Pos;
+        public double ballPos, p1Pos, p2Pos;
         public double theta;
         public int score1;
         public int score2;
+        public Sound hit;
+        public Sound bounce;
+        public Sound splat;
         
 	// init-method for initializing all resources
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
             this.game = sbg;
             background = new Image("bg1.png");
-            left = false;
+            left = true;
             minHeight = 480;
             maxHeight = 0;
             minWidth = 0;
             maxWidth = 640;
             
-            Random rand = new Random();//do seed
-            startSpeed = 5;
-            ballSpeed = startSpeed;
-            theta = rand.nextDouble()*180 - 89;
-            ySpeed = ballSpeed * Math.sin(theta);
-            xSpeed = ballSpeed * Math.cos(theta);
-            paddleSpeed = 15;
-
-            ball = new Ball();
+            hit = new Sound("ballhit.wav");
+            bounce = new Sound("bounce.wav");
+            splat = new Sound("splat.wav");
+            
+            Image i = new Image("ball2.png");
+            ball = new Ball(i);
             ball.w = 20;
             ball.h = 20;
             ball.x = 320 - ball.w;
             ball.y = 240 - ball.h;
+            
+            startSpeed = 5;
+            setTheta();
+            ball.setSpeed(theta, startSpeed);
+            
+            /*ballSpeed = startSpeed;
+            ySpeed = ballSpeed * Math.sin(theta);
+            xSpeed = ballSpeed * Math.cos(theta);*/
+            
+            paddleSpeed = 15;
 
             p1 = new Paddle();                
             p1.w = 20;
@@ -86,7 +97,7 @@ public class Game extends BasicGameState{
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
-            g.drawString("Player VS Player", 300, 10);
+            g.drawString("Player VS Player", 250, 10);
             g.fillOval(ball.x, ball.y, ball.w, ball.h);
             g.drawImage(ball.i, ball.x, ball.y);
             g.fillRoundRect(p1.x, p1.y, p1.w, p1.h, 10);
@@ -107,68 +118,67 @@ public class Game extends BasicGameState{
             input = gc.getInput();         
             
             if(start){//game start
-                if(left){//ball going left
-                    ball.x += -xSpeed;
-                    ball.y += ySpeed;
-                    //left paddle collision
-                    if(ball.x <= (p1.x + p1.w) && ball.y <= (p1.y + p1.h) && (ball.y + ball.h) >= (p1.y)){
-                        left = false;
-                        if(ballSpeed < 20){
-                            ballSpeed++;
-                        }
-                        theta =  atan((ballPos - p1Pos)/((p1.w/2) + (ball.w/2)));
-                        ySpeed = ballSpeed * Math.sin(theta);
-                        xSpeed = ballSpeed * Math.cos(theta);
-                      }
-                    //left wall collision
-                    if(ball.x <= minWidth){
-                        start = false;
-                        ball.x = 320 - ball.w;
-                        ball.y = 240 - ball.h;
-                        ballSpeed = startSpeed;
-                        ySpeed = ballSpeed * Math.sin(theta);
-                        xSpeed = ballSpeed * Math.cos(theta);
-                        score2++;
-                        theta = rand.nextDouble()*180 - 89;
+                
+                ball.x += ball.xSpeed;
+                ball.y += ball.ySpeed;
+                //left paddle collision
+                if(ball.x <= (p1.x + p1.w) && ball.y <= (p1.y + p1.h) && (ball.y + ball.h) >= (p1.y)){
+                    hit.play();
+                    left = false;
+                    if(ball.speed < 20){
+                        ball.speed++;
                     }
-                }//ball going right
-                else{
-                    ball.x += xSpeed;
-                    ball.y += ySpeed;
-                    //right paddle collision
-                    if(ball.x + ball.w >= (p2.x) && ball.y <= (p2.y + p2.h) && (ball.y + ball.h) >= (p2.y)){
-                        left = true;
-                        if(ballSpeed < 20){
-                            ballSpeed++;
-                        }
-                        theta =  atan((ballPos - p2Pos)/((p2.w/2) + (ball.w/2)));
-                        ySpeed = ballSpeed * Math.sin(theta);
-                        xSpeed = ballSpeed * Math.cos(theta);
-                    }
-                    //right wall collision 
-                    if(ball.x + ball.w >= maxWidth){
-                        start = false;
-                        ball.x = 320 - ball.w;
-                        ball.y = 240 - ball.h;
-                        ballSpeed = startSpeed;
-                        ySpeed = ballSpeed * Math.sin(theta);
-                        xSpeed = ballSpeed * Math.cos(theta);
-                        score1++;
-                        theta = rand.nextDouble()*180 - 89;
-                    }
+                    theta =  getBounceTheta(ballPos, p1Pos, ball.w, p1.w);
+                    ball.setSpeed(theta, ball.speed);
+                  }
+                //left wall collision
+                if(ball.x <= minWidth){
+                    splat.play();
+                    start = false;
+                    ball.x = 320 - ball.w;
+                    ball.y = 240 - ball.h;
+                    setTheta();
+                    ball.setSpeed(theta, startSpeed);
+                    score2++;
                 }
+
+                //right paddle collision
+                if(ball.x + ball.w >= (p2.x) && ball.y <= (p2.y + p2.h) && (ball.y + ball.h) >= (p2.y)){
+                    hit.play();
+                    left = true;
+                    if(ball.speed < 20){
+                        ball.speed++;
+                    }
+                    theta =  getBounceTheta(ballPos, p2Pos, ball.w, p2.w);
+                    ball.setSpeed(theta, ball.speed);
+                    ball.xSpeed = -ball.xSpeed;
+                }
+                //right wall collision 
+                if(ball.x + ball.w >= maxWidth){
+                    splat.play();
+                    start = false;
+                    ball.x = 320 - ball.w;
+                    ball.y = 240 - ball.h;
+                    setTheta();
+                    ball.setSpeed(theta, startSpeed);
+                    score1++;
+                    theta = rand.nextDouble()*180 - 89;
+                }
+                
                 //top wall collision
                 if(ball.y <= maxHeight){
-                    ySpeed = -ySpeed;
+                    bounce.play(1,0.05F);
+                    ball.ySpeed = -ball.ySpeed;
                 }
                 //botton wall collision
                 if(ball.y + ball.h >= minHeight){
-                    ySpeed = -ySpeed;
+                    bounce.play(1,0.05F);
+                    ball.ySpeed = -ball.ySpeed;
                 }
+                
             }else{
                 if(input.isKeyPressed(Input.KEY_SPACE)){
                 start = true;
-                left = !left;
                 }
             }
             //Up left paddle
@@ -198,6 +208,22 @@ public class Game extends BasicGameState{
             
             
 	}
+        
+        public void setTheta(){
+            Random rand = new Random();
+            this.theta = rand.nextDouble() * 360;
+            //make sure ball doesnt go straight up and down
+            if((theta >= 70 && theta <= 110) || (theta >= 250 && theta <= 290)){
+                theta = 0;
+            }
+            theta  = Math.toRadians(theta);
+        }
+        
+        public double getBounceTheta(double ballPosition, double paddlePosition,  double ballWidth, double paddleWidth){
+            double bounceTheta;
+            bounceTheta =  atan((ballPosition - paddlePosition)/((paddleWidth/2) + (ballWidth/2)));
+            return bounceTheta;
+        }
 
 	// Returning 'ID' from class 'MainMenu'
 	@Override
@@ -209,8 +235,7 @@ public class Game extends BasicGameState{
                 start = false;
                 ball.x = 320 - ball.w;
                 ball.y = 240 - ball.h;
-                xSpeed = 3;
-                ySpeed = 0;
+                setTheta();
                 p1.x = minWidth;
                 p1.y = (minHeight /2) - (p1.h / 2);
                 p2.x = maxWidth - p2.w;
