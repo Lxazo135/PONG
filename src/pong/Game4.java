@@ -1,30 +1,38 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 package pong;
 import java.lang.Math;
 import static java.lang.Math.atan;
 import static java.lang.Math.tan;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.Sound;
-import java.util.Random;
 
-public class Game extends BasicGameState{
+public class Game4 extends BasicGameState{
     // ID we return to class 'Application'
-	public static final int ID = 1;
+	public static final int ID = 4;
         private StateBasedGame game;
         public static Image background;
         public Ball ball;
         public Paddle p1,p2;
         public Input input;
         public boolean start = false;
-        public boolean left;
-        public boolean up;
         public double ballSpeed;
         public double xSpeed;
         public double ySpeed;
@@ -38,20 +46,22 @@ public class Game extends BasicGameState{
         public double theta;
         public int score1;
         public int score2;
-        public Sound hit;
-        public Sound bounce;
-        public Sound splat;
+        public Sound hit, bounce, splat;
+        public Power power;
+        public boolean show, stop, invert;
+        public Timer timer;
+        
         
 	// init-method for initializing all resources
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
             this.game = sbg;
             background = new Image("bg1.png");
-            left = true;
             minHeight = 480;
             maxHeight = 0;
             minWidth = 0;
             maxWidth = 640;
+            timer = new Timer();
             
             hit = new Sound("ballhit.wav");
             bounce = new Sound("bounce.wav");
@@ -93,6 +103,12 @@ public class Game extends BasicGameState{
             
             score1 = 0;
             score2 = 0;
+            
+            power = Power.getInstance();
+            power.setPower(maxWidth  - 200, minHeight - 200, 200, 200);
+            show = true;
+            stop = false;
+            invert = false;
 	}
 
 	// render-method for all the things happening on-screen
@@ -105,6 +121,9 @@ public class Game extends BasicGameState{
             g.drawImage(p2.i, p2.x, p2.y);
             g.drawString(Integer.toString(score1), 200, 50);
             g.drawString(Integer.toString(score2), 450, 50);
+            if(show){
+                g.fillRect(power.x, power.y, power.w, power.h);
+            }    
 	}
 
 	// update-method with all the magic happening in it
@@ -118,12 +137,13 @@ public class Game extends BasicGameState{
             
             if(start){//game start
                 
-                ball.x += ball.xSpeed;
-                ball.y += ball.ySpeed;
+                if(!stop){
+                    ball.x += ball.xSpeed;
+                    ball.y += ball.ySpeed;
+                }    
                 //left paddle collision
                 if(ball.x <= (p1.x + p1.w) && ball.y <= (p1.y + p1.h) && (ball.y + ball.h) >= (p1.y)){
                     hit.play();
-                    left = false;
                     if(ball.speed < 20){
                         ball.speed++;
                     }
@@ -143,7 +163,6 @@ public class Game extends BasicGameState{
                 //right paddle collision
                 if(ball.x + ball.w >= (p2.x) && ball.y <= (p2.y + p2.h) && (ball.y + ball.h) >= (p2.y)){
                     hit.play();
-                    left = true;
                     if(ball.speed < 20){
                         ball.speed++;
                     }
@@ -171,37 +190,85 @@ public class Game extends BasicGameState{
                     bounce.play(1,0.05F);
                     ball.ySpeed = -ball.ySpeed;
                 }
+                //power collision and long logic
+                if(show){
+                    if(ball.x + ball.w >= power.x && ball.x <= power.x + power.w && ball.y + ball.h >= power.y && ball.y <= power.y + power.h){
+                       revertPower();
+                        try {
+                            doPower();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Game4.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                       power.setPower(maxWidth - 100, minHeight - 100, 200, 200);
+                       show = false;
+                       timer.schedule(new TimerTask(){
+                            @Override
+                            public void run(){
+                               show = true; 
+                            }
+                        },4*1000);
+                    }
+                }    
+                
                 
             }else{
                 if(input.isKeyPressed(Input.KEY_SPACE)){
                 start = true;
                 }
             }
-            //Up left paddle
-            if(input.isKeyDown(Input.KEY_Q)){
-                if(p1.y >= maxHeight){
-                    p1.y += -paddleSpeed;
-                }
-            }
-            //Down left paddle
-            if(input.isKeyDown(Input.KEY_A)){
-                if(p1.y + p1.h <= minHeight){
-                    p1.y += paddleSpeed;
-                }
-            }
-            //Up right paddle
-            if(input.isKeyDown(Input.KEY_UP)){
-                if(p2.y >= maxHeight){
-                    p2.y += -paddleSpeed;
-                }
-            }
-            //Down right paddle
-            if(input.isKeyDown(Input.KEY_DOWN)){
-                if(p2.y + p2.h <= minHeight){
-                    p2.y += paddleSpeed;
-                }
-            }
             
+            if(invert){//INVERTED
+                //Up left paddle
+                if(input.isKeyDown(Input.KEY_A)){
+                    if(p1.y >= maxHeight){
+                        p1.y += -paddleSpeed;
+                    }
+                }
+                //Down left paddle
+                if(input.isKeyDown(Input.KEY_Q)){
+                    if(p1.y + p1.h <= minHeight){
+                        p1.y += paddleSpeed;
+                    }
+                }
+                //Up right paddle
+                if(input.isKeyDown(Input.KEY_DOWN)){
+                    if(p2.y >= maxHeight){
+                        p2.y += -paddleSpeed;
+                    }
+                }
+                //Down right paddle
+                if(input.isKeyDown(Input.KEY_UP)){
+                    if(p2.y + p2.h <= minHeight){
+                        p2.y += paddleSpeed;
+                    }
+                }
+            }
+            else{//NORMAL
+                //Up left paddle
+                if(input.isKeyDown(Input.KEY_Q)){
+                    if(p1.y >= maxHeight){
+                        p1.y += -paddleSpeed;
+                    }
+                }
+                //Down left paddle
+                if(input.isKeyDown(Input.KEY_A)){
+                    if(p1.y + p1.h <= minHeight){
+                        p1.y += paddleSpeed;
+                    }
+                }
+                //Up right paddle
+                if(input.isKeyDown(Input.KEY_UP)){
+                    if(p2.y >= maxHeight){
+                        p2.y += -paddleSpeed;
+                    }
+                }
+                //Down right paddle
+                if(input.isKeyDown(Input.KEY_DOWN)){
+                    if(p2.y + p2.h <= minHeight){
+                        p2.y += paddleSpeed;
+                    }
+                }
+            }
             
 	}
         
@@ -225,12 +292,78 @@ public class Game extends BasicGameState{
             bounceTheta =  atan((position1 - position2)/((radius1/2) + (radius2/2)));
             return bounceTheta;
         }
+        
+        public void doPower() throws SlickException, InterruptedException{
+            Image k = new Image("smallPaddle.png");
+            switch(power.id){
+                //smaller paddles
+                case 1: float tempX = p1.x;
+                        float tempY = p1.y - (p1.h/2);
+                        p1 = new Paddle(k);                
+                        p1.w = 20;
+                        p1.h = 70;
+                        p1.x = tempX;
+                        p1.y = tempY + (p1.h/2);
+                        
+                        tempX = p2.x;
+                        tempY = p2.y - (p2.h/2);
+                        p2 = new Paddle(k);
+                        p2.w = 20;
+                        p2.h = 70;
+                        p2.x = tempX;
+                        p2.y = tempY + (p2.h/2);
+                        break;
+                //stop ball and reset theta    
+                case 2: stop = true;
+                        timer.schedule(new TimerTask(){
+                            @Override
+                            public void run(){
+                               stop = false; 
+                            }
+                        },2*1000);
+                        setTheta();
+                        ball.setSpeed(theta, ball.speed);
+                        break;
+                //invert controls    
+                case 3: invert = true;
+                        break; 
+                case 4: break;   
+            }
+        }
+        
+        public void revertPower() throws SlickException{
+            Image k = new Image("paddle.png");
+            switch(power.past){
+                case 1: float tempX = p1.x;
+                        float tempY = p1.y - (p1.h/2);
+                        p1 = new Paddle(k);                
+                        p1.w = 20;
+                        p1.h = 125;
+                        p1.x = tempX;
+                        p1.y = tempY + (p1.h/2);
+                        
+                        tempX = p2.x;
+                        tempY = p2.y - (p2.h/2);
+                        p2 = new Paddle(k);
+                        p2.w = 20;
+                        p2.h = 125;
+                        p2.x = tempX;
+                        p2.y = tempY + (p2.h/2);
+                        break;
+                    
+                case 2: break;
+                case 3: invert = false;
+                        break;
+                case 4: break;   
+            }
+        }    
 
 	// Returning 'ID' from class 'MainMenu'
 	@Override
 	public int getID() {
-		return Game.ID;
+		return Game4.ID;
 	}
+        
         public void keyReleased(int key, char c){
             if(key == Input.KEY_1){          
                 start = false;

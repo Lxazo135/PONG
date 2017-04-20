@@ -6,8 +6,8 @@ import org.newdawn.slick.Image;
 
 public class Paddle {
     public Image i;
-    public int x,y,w,h;
-    public Paddle() throws SlickException{
-        i = new Image("paddle.png");
+    public float x,y,w,h;
+    public Paddle(Image j) throws SlickException{
+        i = j;
     }    
 }

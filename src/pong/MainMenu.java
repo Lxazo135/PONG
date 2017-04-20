@@ -13,10 +13,8 @@ public class MainMenu extends BasicGameState {
 	public static final int ID = 0;
         private StateBasedGame game;
         public static Image background;
-        public Image buttonPVP;
-        public Image buttonPVAI;
-        public startButton start;
-        public startButton start2;
+        public Image buttonPVP, buttonPVAI, buttonPower,button4Player; 
+        public startButton start, start2, start3, start4;
         public Input input;
 	// init-method for initializing all resources
 	@Override
@@ -26,23 +24,33 @@ public class MainMenu extends BasicGameState {
             
             buttonPVP = new Image("pvp.jpg");
             start = new startButton(buttonPVP, 300, 150);
-            start.x = 160 - (start.w/2);
-            start.y = 240 - (start.h/2);
+            start.x = 0;
+            start.y = 0;
             
             buttonPVAI = new Image("pvai.png");
             start2 = new startButton(buttonPVAI, 300, 150);
-            start2.x = 480 - (start2.w/2);
-            start2.y = 240 - (start.h/2);
+            start2.x = 640 - start2.w;
+            start2.y = 0;
+            
+            buttonPower = new Image("4player.png");
+            start3 = new startButton(buttonPower, 300, 150);
+            start3.x = 0;
+            start3.y = 480 - start3.h;
+            
+            button4Player = new Image("power.png");
+            start4 = new startButton(button4Player, 300, 150);
+            start4.x = 640 - start4.w;
+            start4.y = 480 - start4.h;
 	}
 
 	// render-method for all the things happening on-screen
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
-            g.fillRoundRect(start.x, start.y, start.w, start.h, 10);
             g.drawImage(start.i, start.x, start.y);
-            g.fillRoundRect(start2.x, start2.y, start2.w, start2.h, 10);
             g.drawImage(start2.i, start2.x, start2.y);
+            g.drawImage(start3.i, start3.x, start3.y);
+            g.drawImage(start4.i, start4.x, start4.y);
             g.drawString("MAIN MENU", 300, 10);
 	}
 
@@ -65,6 +73,12 @@ public class MainMenu extends BasicGameState {
             if(key == Input.KEY_3){
                 game.enterState(Game2.ID);
             }
+            if(key == Input.KEY_4){
+                game.enterState(Game3.ID);
+            }
+            if(key == Input.KEY_5){
+                game.enterState(Game4.ID);
+            }
         }
         
         public void mouseReleased(int button, int x, int y){
@@ -74,6 +88,14 @@ public class MainMenu extends BasicGameState {
             
             if(x > start2.x && x < start2.x + start2.w && y > start2.y && y < start2.y + start2.h){
                 game.enterState(Game2.ID);
+            }
+            
+            if(x > start3.x && x < start3.x + start3.w && y > start3.y && y < start3.y + start3.h){
+                game.enterState(Game3.ID);
+            }
+            
+            if(x > start4.x && x < start4.x + start4.w && y > start4.y && y < start4.y + start4.h){
+                game.enterState(Game4.ID);
             }
         }
 }

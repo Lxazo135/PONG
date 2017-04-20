@@ -10,7 +10,9 @@ public class Pong extends StateBasedGame {
     // Game state identifiers
     public static final int MAINMENU     = 0;
     public static final int GAME         = 1; //player vs player
-    public static final int GAME2         = 2; //plaver vs AI
+    public static final int GAME2        = 2; //plaver vs AI
+    public static final int GAME3        = 3; //4 player
+    public static final int GAME4        = 4; //pvp powerups
 
     // Application Properties
     public static final int WIDTH   = 640;
@@ -29,6 +31,8 @@ public class Pong extends StateBasedGame {
         this.addState(new MainMenu());
         this.addState(new Game());
         this.addState(new Game2());
+        this.addState(new Game3());
+        this.addState(new Game4());
     }
 
     // Main Method

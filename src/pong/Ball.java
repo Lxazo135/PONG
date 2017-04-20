@@ -6,13 +6,13 @@ import org.newdawn.slick.Image;
 
 public class Ball {
     public Image i;
-    public int x,y,w,h;
+    public float x,y,w,h;
     public double speed, xSpeed, ySpeed;
     public Ball(Image j) throws SlickException{
         i = j;
     }
     
-    public void setBall(int newX, int newY, int newW, int newH){
+    public void setBall(float newX, float newY, float newW, float newH){
         x = newX;
         y = newY;
         w = newW;
