@@ -13,7 +13,7 @@ public class MainMenu extends BasicGameState {
 	public static final int ID = 0;
         private StateBasedGame game;
         public static Image background;
-        public Image buttonPVP, buttonPVAI, buttonPower,button4Player; 
+        public Image buttonPVP, buttonPVAI, buttonPower,button4Player, pongScreen; 
         public startButton start, start2, start3, start4;
         public Input input;
 	// init-method for initializing all resources
@@ -22,7 +22,7 @@ public class MainMenu extends BasicGameState {
             this.game = sbg;
             background = new Image("bg2.png");
             
-            buttonPVP = new Image("pvp.jpg");
+            buttonPVP = new Image("pvp.png");
             start = new startButton(buttonPVP, 300, 150);
             start.x = 0;
             start.y = 0;
@@ -41,6 +41,8 @@ public class MainMenu extends BasicGameState {
             start4 = new startButton(button4Player, 300, 150);
             start4.x = 640 - start4.w;
             start4.y = 480 - start4.h;
+            
+            pongScreen = new Image("PongScreen.png");
 	}
 
 	// render-method for all the things happening on-screen
@@ -51,7 +53,7 @@ public class MainMenu extends BasicGameState {
             g.drawImage(start2.i, start2.x, start2.y);
             g.drawImage(start3.i, start3.x, start3.y);
             g.drawImage(start4.i, start4.x, start4.y);
-            g.drawString("MAIN MENU", 300, 10);
+            g.drawImage(pongScreen, 170, 160);
 	}
 
 	// update-method with all the magic happening in it
@@ -78,6 +80,12 @@ public class MainMenu extends BasicGameState {
             }
             if(key == Input.KEY_5){
                 game.enterState(Game4.ID);
+            }
+            if(key == Input.KEY_6){
+                game.enterState(Game5.ID);
+            }
+            if(key == Input.KEY_7){
+                game.enterState(Game6.ID);
             }
         }
         

@@ -38,9 +38,7 @@ public class Game extends BasicGameState{
         public double theta;
         public int score1;
         public int score2;
-        public Sound hit;
-        public Sound bounce;
-        public Sound splat;
+        public Sound hit, bounce, splat;
         
 	// init-method for initializing all resources
 	@Override
@@ -100,6 +98,7 @@ public class Game extends BasicGameState{
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
             g.drawString("Player VS Player", 250, 10);
+            g.drawString("Press 1 to return to Main Menu", 10, 450);
             g.drawImage(ball.i, ball.x, ball.y);
             g.drawImage(p1.i, p1.x, p1.y);
             g.drawImage(p2.i, p2.x, p2.y);

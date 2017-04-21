@@ -13,7 +13,9 @@ public class Pong extends StateBasedGame {
     public static final int GAME2        = 2; //plaver vs AI
     public static final int GAME3        = 3; //4 player
     public static final int GAME4        = 4; //pvp powerups
-
+    public static final int GAME5        = 5; //powers demo mode
+    public static final int GAME6        = 6; //pvai demo mode  
+    
     // Application Properties
     public static final int WIDTH   = 640;
     public static final int HEIGHT  = 480;
@@ -33,6 +35,8 @@ public class Pong extends StateBasedGame {
         this.addState(new Game2());
         this.addState(new Game3());
         this.addState(new Game4());
+        this.addState(new Game5());
+        this.addState(new Game6());
     }
 
     // Main Method

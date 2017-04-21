@@ -13,25 +13,25 @@ import org.newdawn.slick.Image;
  *
  * @author Lan
  */
-public class Power {
+public class DemoPower {
     
     public float x, y, w, h;
     public int id, past;
-    private static final Power instance = new Power();
+    private static final DemoPower instance = new DemoPower();
     public Image power1, power2, power3, power4;
     public Image[] set = new Image[4];
     public Image i;
     
-    private Power(){}
+    private DemoPower(){}
     
-    public static Power getInstance(){
+    public static DemoPower getInstance(){
         return instance; 
     }
     
     public void setPower(int maxX, int maxY, float newW, float newH){
         Random rand = new Random();
-        x = rand.nextInt(maxX);
-        y = rand.nextInt(maxY);
+        x = maxX;
+        y = maxY;
         w = newW;
         h = newH;
         int temp = id;
@@ -50,6 +50,7 @@ public class Power {
         set[2] = power3;
         power4 = d;
         set[3] = power4;
+        
     }
     
 }

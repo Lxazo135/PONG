@@ -16,33 +16,31 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
-import org.newdawn.slick.Sound;
 import java.util.Random;
+import org.newdawn.slick.Sound;
 
-public class Game3 extends BasicGameState{
+public class Game6 extends BasicGameState{
     // ID we return to class 'Application'
-	public static final int ID = 3;
+	public static final int ID = 6;
         private StateBasedGame game;
         public static Image background;
-        public Ball ball;
-        public Paddle p1,p2,p3,p4;
+        public Ball ball, ball2;
+        public Paddle p1,p2;
         public Input input;
-        public boolean start = false;
-        public boolean left;
+        public boolean start, start2;
+        public boolean left, left2;
         public boolean up;
-        public double ballSpeed;
-        public double xSpeed;
-        public double ySpeed;
-        public double startSpeed;
-        public double paddleSpeed;
+        public double ballSpeed, ballSpeed2, startSpeed;
+        public double xSpeed, ySpeed, xSpeed2, ySpeed2;
+        public double paddleSpeed, aiSpeed;
         public int maxHeight;
         public int minHeight;
         public int minWidth;
         public int maxWidth;
-        public double ballPos, ballPos2, p1Pos, p2Pos, p3Pos, p4Pos;
+        public double ballPos, ballPos2, p1Pos, p2Pos;
         public double theta;
-        public int score1, score2, score3, score4;
-        public int lastTouch;
+        public int score1;
+        public int score2;
         public Sound hit;
         public Sound bounce;
         public Sound splat;
@@ -52,7 +50,10 @@ public class Game3 extends BasicGameState{
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
             this.game = sbg;
             background = new Image("bg1.png");
-            left = true;
+            left = false;
+            left2 = false;
+            start = false;
+            start2 = false;
             minHeight = 480;
             maxHeight = 0;
             minWidth = 0;
@@ -69,16 +70,27 @@ public class Game3 extends BasicGameState{
             ball.x = 320 - ball.w;
             ball.y = 240 - ball.h;
             
+            Image j = new Image("ball3.png");
+            ball2 = new Ball(j);
+            ball2.w = 20;
+            ball2.h = 20;
+            ball2.x = ball.x;
+            ball2.y = ball.y;
+            
             startSpeed = 5;
             setTheta();
             ball.setSpeed(theta, startSpeed);
             
-            /*ballSpeed = startSpeed;
-            ySpeed = ballSpeed * Math.sin(theta);
-            xSpeed = ballSpeed * Math.cos(theta);*/
+            ball2.setSpeed(theta, startSpeed * 5);
+            
+            System.out.println("ball 1 x: " + ball.xSpeed);
+            System.out.println("ball 2 x: " + ball2.xSpeed);
+            System.out.println("ball 1 y: " + ball.ySpeed);
+            System.out.println("ball 2 y: " + ball2.ySpeed);
             
             paddleSpeed = 15;
-            //vertical paddles
+            aiSpeed = 5;
+            
             Image k = new Image("paddle.png");
             p1 = new Paddle(k);                
             p1.w = 20;
@@ -90,166 +102,165 @@ public class Game3 extends BasicGameState{
             p2.w = 20;
             p2.h = 125;
             p2.x = maxWidth - p2.w;
-            p2.y = (minHeight / 2) - (p2.h / 2);
-            //horizontal paddles
-            Image j = new Image("paddle2.png");
-            p3 = new Paddle(j);
-            p3.w = 125;
-            p3.h = 20;
-            p3.x = (maxWidth/2) - (p3.w/2);
-            p3.y = maxHeight;
-            
-            p4 = new Paddle(j);
-            p4.w = 125;
-            p4.h = 20;
-            p4.x = (maxWidth/2) - (p4.w/2);
-            p4.y = minHeight - p4.h;
+            p2.y = (minHeight / 2) - (p2.h / 2);    
             
             ballPos = ball.y + (ball.h / 2);
-            ballPos2 = ball.x + (ball.w / 2);
             p1Pos = p1.y + (p1.h / 2);
             p2Pos = p2.y + (p2.h / 2);
-            p3Pos = p3.x + (p3.w / 2);
-            p4Pos = p4.x + (p4.w / 2);
             
             score1 = 0;
             score2 = 0;
-            score3 = 0;
-            score4 = 0;
-            lastTouch = 0;
 	}
 
 	// render-method for all the things happening on-screen
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
-            g.drawString("4 player", 150, 10);
+            g.drawString("Player VS AI", 300, 10);
             g.drawString("Press 1 to return to Main Menu", 10, 450);
-            
             g.drawImage(ball.i, ball.x, ball.y);
+            g.drawImage(ball2.i, ball2.x, ball2.y);
             g.drawImage(p1.i, p1.x, p1.y);
             g.drawImage(p2.i, p2.x, p2.y);
-            g.drawImage(p3.i, p3.x, p3.y);
-            g.drawImage(p4.i, p4.x, p4.y);
-            
-            g.drawString(Integer.toString(score1), 50, 230);
-            g.drawString(Integer.toString(score2), 580, 230);
-            g.drawString(Integer.toString(score3), 320, 50);
-            g.drawString(Integer.toString(score4), 320, 420);
+            g.drawString(Integer.toString(score1), 200, 50);
+            g.drawString(Integer.toString(score2), 450, 50);
 	}
 
 	// update-method with all the magic happening in it
 	@Override
 	public void update(GameContainer gc, StateBasedGame sbg, int arg2) throws SlickException {
             ballPos = ball.y + (ball.h / 2);
-            ballPos2 = ball.x + (ball.w / 2);
+            ballPos2 = ball2.y + (ball2.h/2);
             p1Pos = p1.y + (p1.h / 2);
             p2Pos = p2.y + (p2.h / 2);
-            p3Pos = p3.x + (p3.w / 2);
-            p4Pos = p4.x + (p4.w / 2);
-            Random rand = new Random();
             input = gc.getInput();         
             
             if(start){//game start
-                
                 ball.x += ball.xSpeed;
                 ball.y += ball.ySpeed;
                 //left paddle collision
                 if(ball.x <= (p1.x + p1.w) && ball.y <= (p1.y + p1.h) && (ball.y + ball.h) >= (p1.y)){
                     hit.play();
+                    start2 = true;
                     if(ball.speed < 20){
                         ball.speed++;
+                        ball2.speed = ball.speed * 5;
                     }
-                    theta =  getBounceTheta(ballPos, p1Pos, ball.w, p1.w);
+                    theta = getBounceTheta(ballPos, p1Pos, ball.w, p1.w);
                     ball.setSpeed(theta, ball.speed);
                     
+                    ball2.x = ball.x;
+                    ball2.y = ball.y;
+                    
+                    ball2.setSpeed(theta, ball2.speed);
                   }
-                //left wall collision
+                //left wall collision ball1
                 if(ball.x <= minWidth){
                     splat.play();
                     start = false;
-                    resetBall(ball);
                     setTheta();
+                    ball.x = 320 - ball.w;
+                    ball.y = 240 - ball.h;
                     ball.setSpeed(theta, startSpeed);
+
+                    start2 = false;
+                    ball2.x = ball.x;
+                    ball2.y = ball.y;
+                    ball2.setSpeed(theta, startSpeed * 5);
                     score2++;
-                    score3++;
-                    score4++;
+
                 }
 
                 //right paddle collision
                 if(ball.x + ball.w >= (p2.x) && ball.y <= (p2.y + p2.h) && (ball.y + ball.h) >= (p2.y)){
                     hit.play();
+                    start2 = false;
                     if(ball.speed < 20){
                         ball.speed++;
+                        ball2.speed = ball.speed * 5;
                     }
-                    theta =  getBounceTheta(ballPos, p2Pos, ball.w, p2.w);
+                    //theta =  atan((ballPos - p2Pos)/((p2.w/2) + (ball.w/2)));
+                    theta = getBounceTheta(ballPos, p2Pos, ball.w, p2.w);
                     ball.setSpeed(theta, ball.speed);
                     ball.xSpeed = -ball.xSpeed;
+
+                    ball2.x = ball.x;
+                    ball2.y = ball.y;
+                    ball2.setSpeed(theta, ball2.speed);
                 }
-                //right wall collision 
+                //right wall collision ball1
                 if(ball.x + ball.w >= maxWidth){
                     splat.play();
                     start = false;
-                    resetBall(ball);
+                    start2 = false;
                     setTheta();
+                    ball.x = 320 - ball.w;
+                    ball.y = 240 - ball.h;
                     ball.setSpeed(theta, startSpeed);
+
+                    ball2.x = ball.x;
+                    ball2.y = ball.y;
+                    ball2.setSpeed(theta, startSpeed * 5);
                     score1++;
-                    score3++;
-                    score4++;
+                }
+                //ball2 right wall collsiion
+                if(ball2.x + ball2.w >= maxWidth){
+                    if(p2Pos > ballPos2){
+                        p2.y += -aiSpeed;
+                        p2Pos = p2.y + (p2.h / 2);
+                        if(p2Pos <= ballPos2){
+                            p2.y = ball2.y + (ball2.h/2) - (p2.h/2);//makes ballPos2 = p2Pos
+                        }    
+                    }
+                    else if(p2Pos < ballPos2){
+                        p2.y += aiSpeed;
+                        p2Pos = p2.y + (p2.h / 2);
+                        if(p2Pos >= ballPos2){
+                            p2.y = ball2.y + (ball2.h/2) - (p2.h/2);//same as above
+                        }  
+                    }
                 }
                 
-                //top paddle collision
-                if(ball.y <= (p3.y + p3.h) && ball.x + ball.w >= p3.x && ball.x  <= (p3.x + p3.w)){
-                    hit.play();
-                    if(ball.speed < 20){
-                        ball.speed++;
-                    }
-                    theta =  getBounceTheta(p3Pos, ballPos2, ball.h, p3.h);
-                    theta = Math.toRadians(90) + theta;
-                    ball.setSpeed(theta, ball.speed);
-                }
                 
                 //top wall collision
                 if(ball.y <= maxHeight){
-                    splat.play();
-                    start = false;
-                    resetBall(ball);
-                    setTheta();
-                    ball.setSpeed(theta, startSpeed);
-                    score1++;
-                    score2++;
-                    score4++;
-                }
-                
-                //bottom paddle collision
-                if( (ball.y + ball.h) >= p4.y && ball.x + ball.w >= p4.x && ball.x <= (p4.x + p4.w)){
-                    hit.play();
-                    if(ball.speed < 20){
-                        ball.speed++;
-                    }
-                    theta =  getBounceTheta(p4Pos, ballPos2, ball.h, p4.h);
-                    theta = Math.toRadians(90) + theta;
-                    ball.setSpeed(theta, ball.speed);
+                    bounce.play(1,0.1F);
                     ball.ySpeed = -ball.ySpeed;
                 }
-                
                 //botton wall collision
                 if(ball.y + ball.h >= minHeight){
-                    splat.play();
-                    start = false;
-                    resetBall(ball);
-                    setTheta();
-                    ball.setSpeed(theta, startSpeed);
-                    score1++;
-                    score2++;
-                    score3++;
+                    bounce.play(1,0.1F);
+                    ball.ySpeed = -ball.ySpeed;
                 }
-                
-            }else{
-                if(input.isKeyPressed(Input.KEY_SPACE)){
-                start = true;
+                //same for ball 2
+                if(ball2.y <= maxHeight){
+                    ball2.ySpeed = -ball2.ySpeed;
+                }
+                //botton wall collision
+                if(ball2.y + ball.h >= minHeight){
+                    ball2.ySpeed = -ball2.ySpeed;
                 }
             }
+            else{
+                //start
+                if(input.isKeyPressed(Input.KEY_SPACE)){
+                    start = true;
+                    start2 = true;
+                }
+            }
+                
+            
+            // ball 2 
+            if(start2){
+                ball2.x += ball2.xSpeed;
+                ball2.y += ball2.ySpeed;
+                
+                if(ball2.x + ball2.w >= maxWidth){
+                    start2 = false;
+                }
+                
+            } 
+            
             //Up left paddle
             if(input.isKeyDown(Input.KEY_Q)){
                 if(p1.y >= maxHeight){
@@ -262,60 +273,16 @@ public class Game3 extends BasicGameState{
                     p1.y += paddleSpeed;
                 }
             }
-            //Up right paddle
-            if(input.isKeyDown(Input.KEY_UP)){
-                if(p2.y >= maxHeight){
-                    p2.y += -paddleSpeed;
-                }
-            }
-            //Down right paddle
-            if(input.isKeyDown(Input.KEY_DOWN)){
-                if(p2.y + p2.h <= minHeight){
-                    p2.y += paddleSpeed;
-                }
-            }
-            
-            //Left top paddle
-            if(input.isKeyDown(Input.KEY_O)){
-                if(p3.x >= minWidth){
-                    p3.x += -paddleSpeed;
-                }
-            }
-            //Down right paddle
-            if(input.isKeyDown(Input.KEY_P)){
-                if(p3.x + p3.w <= maxWidth){
-                    p3.x += paddleSpeed;
-                }
-            }
-            
-            //Left bottom paddle
-            if(input.isKeyDown(Input.KEY_V)){
-                if(p4.x >= minWidth){
-                    p4.x += -paddleSpeed;
-                }
-            }
-            //Down bottom paddle
-            if(input.isKeyDown(Input.KEY_B)){
-                if(p4.x + p4.w <= maxWidth){
-                    p4.x += paddleSpeed;
-                }
-            }
 	}
         
-        public void resetBall(Ball ball){
-            ball.x = 320 - ball.w;
-            ball.y = 240 - ball.h;
-        }
-        
         public void setTheta(){
-           /* Random rand = new Random();
+            Random rand = new Random();
             this.theta = rand.nextDouble() * 360;
             //make sure ball doesnt go straight up and down
             if((theta >= 70 && theta <= 110) || (theta >= 250 && theta <= 290)){
                 theta = 0;
             }
-            theta  = Math.toRadians(theta);*/
-            theta = Math.toRadians(270);
+            theta = Math.toRadians(theta);
         }
         
         public double getBounceTheta(double position1, double position2,  double radius1, double radius2){
@@ -323,29 +290,28 @@ public class Game3 extends BasicGameState{
             bounceTheta =  atan((position1 - position2)/((radius1/2) + (radius2/2)));
             return bounceTheta;
         }
-        
 
 	// Returning 'ID' from class 'MainMenu'
 	@Override
 	public int getID() {
-		return Game3.ID;
+		return Game6.ID;
 	}
         public void keyReleased(int key, char c){
             if(key == Input.KEY_1){          
                 start = false;
+                start2 = false;
                 ball.x = 320 - ball.w;
                 ball.y = 240 - ball.h;
                 setTheta();
+                ball.setSpeed(theta, startSpeed);
+                ball2.setSpeed(theta, startSpeed * 5);
                 p1.x = minWidth;
                 p1.y = (minHeight /2) - (p1.h / 2);
                 p2.x = maxWidth - p2.w;
                 p2.y = (minHeight / 2) - (p2.h / 2); 
                 score1 = 0;
                 score2 = 0;
-                score3 = 0;
-                score4 = 0;
                 game.enterState(MainMenu.ID);
             }
         }
 }
-

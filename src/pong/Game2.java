@@ -116,7 +116,8 @@ public class Game2 extends BasicGameState{
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
-            g.drawString("Player VS AI", 300, 10);
+            g.drawString("Press 1 to return to Main Menu", 10, 450);
+            g.drawString("Player VS AI", 275, 10);
             
             g.drawImage(ball.i, ball.x, ball.y);
             //g.drawImage(ball2.i, ball2.x, ball2.y);

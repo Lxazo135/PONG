@@ -48,8 +48,10 @@ public class Game4 extends BasicGameState{
         public int score2;
         public Sound hit, bounce, splat;
         public Power power;
-        public boolean show, stop, invert;
+        public boolean show, stop, invert, hide;
         public Timer timer;
+        public float powerW, powerH;
+        public int powerX, powerY;
         
         
 	// init-method for initializing all resources
@@ -104,11 +106,21 @@ public class Game4 extends BasicGameState{
             score1 = 0;
             score2 = 0;
             
+            Image q = new Image("power1.png");
+            Image w = new Image("power2.png");
+            Image e = new Image("power3.png");
+            Image r = new Image("power4.png");
+            powerW = 50;
+            powerH = 50;
+            powerX = maxWidth - 200;
+            powerY = minHeight - 200;
             power = Power.getInstance();
-            power.setPower(maxWidth  - 200, minHeight - 200, 200, 200);
+            power.setImages(q,w,e,r);
+            power.setPower(powerX, powerY, powerW, powerH);
             show = true;
             stop = false;
             invert = false;
+            hide = false;
 	}
 
 	// render-method for all the things happening on-screen
@@ -116,13 +128,22 @@ public class Game4 extends BasicGameState{
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
             g.drawString("Player VS Player", 250, 10);
-            g.drawImage(ball.i, ball.x, ball.y);
+            g.drawString("Press 1 to return to Main Menu", 10, 450);
+            if(hide){
+                if(ball.x >= 150 && ball.x <=490){
+                    g.drawImage(ball.i, ball.x, ball.y);
+                }
+            }
+            else{
+                g.drawImage(ball.i, ball.x, ball.y);
+            }
             g.drawImage(p1.i, p1.x, p1.y);
             g.drawImage(p2.i, p2.x, p2.y);
             g.drawString(Integer.toString(score1), 200, 50);
             g.drawString(Integer.toString(score2), 450, 50);
             if(show){
-                g.fillRect(power.x, power.y, power.w, power.h);
+                //g.fillRect(power.x, power.y, power.w, power.h);
+                g.drawImage(power.i, power.x, power.y);
             }    
 	}
 
@@ -148,6 +169,7 @@ public class Game4 extends BasicGameState{
                         ball.speed++;
                     }
                     theta =  getBounceTheta(ballPos, p1Pos, ball.w, p1.w);
+                    System.out.println(theta);
                     ball.setSpeed(theta, ball.speed);
                   }
                 //left wall collision
@@ -199,7 +221,7 @@ public class Game4 extends BasicGameState{
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Game4.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                       power.setPower(maxWidth - 100, minHeight - 100, 200, 200);
+                       power.setPower(powerX, powerY, powerW, powerH);
                        show = false;
                        timer.schedule(new TimerTask(){
                             @Override
@@ -327,7 +349,8 @@ public class Game4 extends BasicGameState{
                 //invert controls    
                 case 3: invert = true;
                         break; 
-                case 4: break;   
+                case 4: hide = true;
+                        break;   
             }
         }
         
@@ -354,7 +377,8 @@ public class Game4 extends BasicGameState{
                 case 2: break;
                 case 3: invert = false;
                         break;
-                case 4: break;   
+                case 4: hide = false;
+                        break;   
             }
         }    
 
