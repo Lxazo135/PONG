@@ -24,23 +24,19 @@ public class MainMenu extends BasicGameState {
             
             buttonPVP = new Image("pvp.png");
             start = new startButton(buttonPVP, 300, 150);
-            start.x = 0;
-            start.y = 0;
+            start.setXY(0, 0);
             
             buttonPVAI = new Image("pvai.png");
             start2 = new startButton(buttonPVAI, 300, 150);
-            start2.x = 640 - start2.w;
-            start2.y = 0;
+            start2.setXY(640 - start2.w, 0);
             
             buttonPower = new Image("4player.png");
             start3 = new startButton(buttonPower, 300, 150);
-            start3.x = 0;
-            start3.y = 480 - start3.h;
+            start3.setXY(0, 480 - start3.h);
             
             button4Player = new Image("power.png");
             start4 = new startButton(button4Player, 300, 150);
-            start4.x = 640 - start4.w;
-            start4.y = 480 - start4.h;
+            start4.setXY(640 - start4.w, 480 - start4.h);
             
             pongScreen = new Image("PongScreen.png");
 	}
@@ -70,40 +66,43 @@ public class MainMenu extends BasicGameState {
         
         public void keyReleased(int key, char c){
             if(key == Input.KEY_2){
-                game.enterState(Game.ID);
+                game.enterState(PlayerVsPlayer.ID);
             }
             if(key == Input.KEY_3){
-                game.enterState(Game2.ID);
+                game.enterState(PlayerVsAI.ID);
             }
             if(key == Input.KEY_4){
-                game.enterState(Game3.ID);
+                game.enterState(FourPlayer.ID);
             }
             if(key == Input.KEY_5){
-                game.enterState(Game4.ID);
+                game.enterState(PowerUps.ID);
             }
             if(key == Input.KEY_6){
-                game.enterState(Game5.ID);
+                game.enterState(PowerUpsDemo.ID);
             }
             if(key == Input.KEY_7){
-                game.enterState(Game6.ID);
+                game.enterState(PlayerVsAIDemo.ID);
+            }
+            if(key == Input.KEY_0){
+                game.enterState(GameOver.ID);
             }
         }
         
         public void mouseReleased(int button, int x, int y){
             if(x > start.x && x < start.x + start.w && y > start.y && y < start.y + start.h){
-                game.enterState(Game.ID);
+                game.enterState(PlayerVsPlayer.ID);
             }
             
             if(x > start2.x && x < start2.x + start2.w && y > start2.y && y < start2.y + start2.h){
-                game.enterState(Game2.ID);
+                game.enterState(PlayerVsAI.ID);
             }
             
             if(x > start3.x && x < start3.x + start3.w && y > start3.y && y < start3.y + start3.h){
-                game.enterState(Game3.ID);
+                game.enterState(FourPlayer.ID);
             }
             
             if(x > start4.x && x < start4.x + start4.w && y > start4.y && y < start4.y + start4.h){
-                game.enterState(Game4.ID);
+                game.enterState(PowerUps.ID);
             }
         }
 }

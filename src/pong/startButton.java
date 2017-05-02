@@ -18,9 +18,15 @@ public class startButton {
     public int x,y;
     public int w;
     public int h;
+    
     public startButton(Image j, int width, int height) throws SlickException{
         i = j;
         w = width;
         h = height; 
     }
+    
+    public void setXY(int x, int y){
+        this.x = x;
+        this.y = y;
+    }    
 }

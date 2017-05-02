@@ -5,53 +5,41 @@
  */
 
 package pong;
-import java.lang.Math;
 import static java.lang.Math.atan;
-import static java.lang.Math.tan;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
-import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 import java.util.Random;
 import org.newdawn.slick.Sound;
 
-public class Game6 extends BasicGameState{
+public class PlayerVsAI extends BasicGameState{
     // ID we return to class 'Application'
-	public static final int ID = 6;
+	public static final int ID = 3;
         private StateBasedGame game;
         public static Image background;
         public Ball ball, ball2;
         public Paddle p1,p2;
         public Input input;
         public boolean start, start2;
-        public boolean left, left2;
-        public boolean up;
-        public double ballSpeed, ballSpeed2, startSpeed;
-        public double xSpeed, ySpeed, xSpeed2, ySpeed2;
+        public double  startSpeed;
         public double paddleSpeed, aiSpeed;
-        public int maxHeight;
-        public int minHeight;
-        public int minWidth;
-        public int maxWidth;
+        public int maxHeight, minHeight, minWidth, maxWidth;
         public double ballPos, ballPos2, p1Pos, p2Pos;
         public double theta;
-        public int score1;
-        public int score2;
-        public Sound hit;
-        public Sound bounce;
-        public Sound splat;
+        public int score1, score2;
+        public Sound hit, bounce, splat;
+        public int limit;
+        
         
 	// init-method for initializing all resources
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
             this.game = sbg;
             background = new Image("bg1.png");
-            left = false;
-            left2 = false;
             start = false;
             start2 = false;
             minHeight = 480;
@@ -110,16 +98,18 @@ public class Game6 extends BasicGameState{
             
             score1 = 0;
             score2 = 0;
+            limit = 10;
 	}
 
 	// render-method for all the things happening on-screen
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
             g.drawImage(background, 0, 0);
-            g.drawString("Player VS AI", 300, 10);
             g.drawString("Press 1 to return to Main Menu", 10, 450);
+            g.drawString("Player VS AI", 275, 10);
+            
             g.drawImage(ball.i, ball.x, ball.y);
-            g.drawImage(ball2.i, ball2.x, ball2.y);
+            //g.drawImage(ball2.i, ball2.x, ball2.y);
             g.drawImage(p1.i, p1.x, p1.y);
             g.drawImage(p2.i, p2.x, p2.y);
             g.drawString(Integer.toString(score1), 200, 50);
@@ -273,6 +263,14 @@ public class Game6 extends BasicGameState{
                     p1.y += paddleSpeed;
                 }
             }
+            if(score1 >= limit){
+                GameOver.winner = "Player";
+                gameOver();
+            }
+            else if(score2 >= limit){
+                GameOver.winner = "AI";
+                gameOver();
+            }
 	}
         
         public void setTheta(){
@@ -294,7 +292,7 @@ public class Game6 extends BasicGameState{
 	// Returning 'ID' from class 'MainMenu'
 	@Override
 	public int getID() {
-		return Game6.ID;
+		return PlayerVsAI.ID;
 	}
         public void keyReleased(int key, char c){
             if(key == Input.KEY_1){          
@@ -313,5 +311,22 @@ public class Game6 extends BasicGameState{
                 score2 = 0;
                 game.enterState(MainMenu.ID);
             }
+        }
+        public void gameOver(){
+            start = false;
+                start2 = false;
+                ball.x = 320 - ball.w;
+                ball.y = 240 - ball.h;
+                setTheta();
+                ball.setSpeed(theta, startSpeed);
+                ball2.setSpeed(theta, startSpeed * 5);
+                p1.x = minWidth;
+                p1.y = (minHeight /2) - (p1.h / 2);
+                p2.x = maxWidth - p2.w;
+                p2.y = (minHeight / 2) - (p2.h / 2); 
+                score1 = 0;
+                score2 = 0;
+                GameOver.currentID = PlayerVsAI.ID;
+                game.enterState(GameOver.ID);
         }
 }

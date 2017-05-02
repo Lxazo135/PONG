@@ -5,13 +5,10 @@
  */
 
 package pong;
-import java.lang.Math;
 import static java.lang.Math.atan;
-import static java.lang.Math.tan;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.newdawn.slick.GameContainer;
@@ -21,31 +18,22 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.BasicGameState;
-import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class Game5 extends BasicGameState{
+public class PowerUpsDemo extends BasicGameState{
     // ID we return to class 'Application'
-    public static final int ID = 5;
+    public static final int ID = 6;
     private StateBasedGame game;
     public static Image background;
     public Ball ball;
     public Paddle p1,p2;
     public Input input;
-    public boolean start = false;
-    public double ballSpeed;
-    public double xSpeed;
-    public double ySpeed;
-    public double startSpeed;
-    public double paddleSpeed;
-    public int maxHeight;
-    public int minHeight;
-    public int minWidth;
-    public int maxWidth;
+    public boolean start;
+    public double startSpeed, paddleSpeed;
+    public int maxHeight, minHeight, minWidth, maxWidth;
     public double ballPos, p1Pos, p2Pos;
     public double theta;
-    public int score1;
-    public int score2;
+    public int score1, score2;
     public Sound hit, bounce, splat;
     public DemoPower power;
     public boolean show, stop, invert, hide;
@@ -58,6 +46,7 @@ public class Game5 extends BasicGameState{
     @Override
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         this.game = sbg;
+        start = false;
         background = new Image("bg1.png");
         minHeight = 480;
         maxHeight = 0;
@@ -218,7 +207,7 @@ public class Game5 extends BasicGameState{
                     try {
                         doPower();
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Game4.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(PowerUps.class.getName()).log(Level.SEVERE, null, ex);
                     }
                    power.setPower(powerX, powerY, powerW, powerH);
                    show = false;
@@ -384,7 +373,7 @@ public class Game5 extends BasicGameState{
     // Returning 'ID' from class 'MainMenu'
     @Override
     public int getID() {
-            return Game5.ID;
+            return PowerUpsDemo.ID;
     }
 
     public void keyReleased(int key, char c){

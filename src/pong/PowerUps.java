@@ -5,13 +5,10 @@
  */
 
 package pong;
-import java.lang.Math;
 import static java.lang.Math.atan;
-import static java.lang.Math.tan;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.newdawn.slick.GameContainer;
@@ -21,43 +18,36 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.BasicGameState;
-import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class Game4 extends BasicGameState{
+public class PowerUps extends BasicGameState{
     // ID we return to class 'Application'
-	public static final int ID = 4;
+	public static final int ID = 5;
         private StateBasedGame game;
         public static Image background;
         public Ball ball;
         public Paddle p1,p2;
         public Input input;
-        public boolean start = false;
-        public double ballSpeed;
-        public double xSpeed;
-        public double ySpeed;
-        public double startSpeed;
-        public double paddleSpeed;
-        public int maxHeight;
-        public int minHeight;
-        public int minWidth;
-        public int maxWidth;
+        public boolean start;
+        public double startSpeed, paddleSpeed;
+        public int maxHeight, minHeight, minWidth, maxWidth;
         public double ballPos, p1Pos, p2Pos;
         public double theta;
-        public int score1;
-        public int score2;
+        public int score1, score2;
         public Sound hit, bounce, splat;
         public Power power;
         public boolean show, stop, invert, hide;
         public Timer timer;
         public float powerW, powerH;
         public int powerX, powerY;
+        public int limit;
         
         
 	// init-method for initializing all resources
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
             this.game = sbg;
+            start = false;
             background = new Image("bg1.png");
             minHeight = 480;
             maxHeight = 0;
@@ -121,6 +111,7 @@ public class Game4 extends BasicGameState{
             stop = false;
             invert = false;
             hide = false;
+            limit = 10;
 	}
 
 	// render-method for all the things happening on-screen
@@ -219,7 +210,7 @@ public class Game4 extends BasicGameState{
                         try {
                             doPower();
                         } catch (InterruptedException ex) {
-                            Logger.getLogger(Game4.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(PowerUps.class.getName()).log(Level.SEVERE, null, ex);
                         }
                        power.setPower(powerX, powerY, powerW, powerH);
                        show = false;
@@ -290,6 +281,16 @@ public class Game4 extends BasicGameState{
                         p2.y += paddleSpeed;
                     }
                 }
+            }
+            
+            //game over
+            if(score1 >= limit){
+                GameOver.winner = "Left Player";
+                gameOver();
+            }
+            else if(score2 >= limit){
+                GameOver.winner = "Right Player";
+                gameOver();
             }
             
 	}
@@ -385,7 +386,7 @@ public class Game4 extends BasicGameState{
 	// Returning 'ID' from class 'MainMenu'
 	@Override
 	public int getID() {
-		return Game4.ID;
+		return PowerUps.ID;
 	}
         
         public void keyReleased(int key, char c){
@@ -402,5 +403,20 @@ public class Game4 extends BasicGameState{
                 score2 = 0;
                 game.enterState(MainMenu.ID);
             }
+        }
+        
+        public void gameOver(){
+            start = false;
+            ball.x = 320 - ball.w;
+            ball.y = 240 - ball.h;
+            setTheta();
+            p1.x = minWidth;
+            p1.y = (minHeight /2) - (p1.h / 2);
+            p2.x = maxWidth - p2.w;
+            p2.y = (minHeight / 2) - (p2.h / 2); 
+            score1 = 0;
+            score2 = 0;
+            GameOver.currentID = PowerUps.ID;
+            game.enterState(GameOver.ID);
         }
 }

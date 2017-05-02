@@ -10,4 +10,5 @@ public class Paddle {
     public Paddle(Image j) throws SlickException{
         i = j;
     }    
+    
 }

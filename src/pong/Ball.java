@@ -8,6 +8,7 @@ public class Ball {
     public Image i;
     public float x,y,w,h;
     public double speed, xSpeed, ySpeed;
+    
     public Ball(Image j) throws SlickException{
         i = j;
     }
@@ -23,6 +24,5 @@ public class Ball {
         speed = speedSet;
         xSpeed = speed * Math.cos(theta);
         ySpeed = speed * Math.sin(theta);
-        
     }
 }
